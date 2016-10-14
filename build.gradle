@@ -49,6 +49,7 @@ sourceSets {
 
 jar {
     baseName = 'plugin'
+    version = ''
     manifest {
         attributes 'Implementation-Title': 'Postfix New Relic Plugin',
                 'Implementation-Version': version,
@@ -63,8 +64,8 @@ jar {
 }
 
 task createDistributable(type: Tar, dependsOn: [jar]) {
-    from "dist/plugin-${version}.jar"
-    from "config"
+    from "dist/plugin.jar"
+    from "templates"
     baseName = 'postfixNewRelic'
     destinationDir = file('dist')
     extension = 'tar.gz'
