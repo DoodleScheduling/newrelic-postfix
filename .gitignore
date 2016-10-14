@@ -1,0 +1,6 @@
+.git
+.idea/
+dist/
+newrelic-postfix.iml
+build/
+
