@@ -46,7 +46,18 @@ sourceSets {
 }
 
 jar {
-    baseName = 'gs-gradle'
-    version = '0.1.0'
+    baseName = 'postfixNewRelic'
+    version = '1.0.0'
+    manifest {
+        attributes 'Implementation-Title': 'Postfix New Relic Plugin',
+                'Implementation-Version': '1.0.0',
+                'Main-Class': 'com.newrelic.metrics.publish.Plugin'
+    }
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    destinationDir = file('dist')
 }
 
