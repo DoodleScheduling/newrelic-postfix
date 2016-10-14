@@ -1,6 +1,8 @@
 apply plugin: 'idea'
 apply plugin: 'java'
 
+version = "1.0.0"
+
 idea {
     project {
         jdkName = '1.8'
@@ -46,11 +48,10 @@ sourceSets {
 }
 
 jar {
-    baseName = 'postfixNewRelic'
-    version = '1.0.0'
+    baseName = 'plugin'
     manifest {
         attributes 'Implementation-Title': 'Postfix New Relic Plugin',
-                'Implementation-Version': '1.0.0',
+                'Implementation-Version': version,
                 'Main-Class': 'com.newrelic.metrics.publish.Plugin'
     }
     from {
@@ -59,5 +60,14 @@ jar {
         }
     }
     destinationDir = file('dist')
+}
+
+task createDistributable(type: Tar, dependsOn: [jar]) {
+    from "dist/plugin-${version}.jar"
+    from "config"
+    baseName = 'postfixNewRelic'
+    destinationDir = file('dist')
+    extension = 'tar.gz'
+    compression = Compression.GZIP
 }
 
