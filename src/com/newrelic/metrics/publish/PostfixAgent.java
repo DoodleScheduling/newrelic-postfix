@@ -13,7 +13,8 @@ public class PostfixAgent extends Agent {
     private static final Logger logger = Logger.getLogger(PostfixAgent.class);
     private static final String QUEUE_SIZE_MSG = "Queue size in kbytes: ";
     private static final String PENDING_EMAILS_MSG = "Number of pending emails: ";
-    private static final String POSTQUEUE_REGEX = "(\\d+) (Kbytes|Requests)";
+    private static final String POSTQUEUE_REGEX_BYTES = "(\\d+) Kbytes";
+    private static final String POSTQUEUE_REGEX_REQUESTS = "(\\d+) Requests";
 
     private static final String GUID = "com.doodle.postfix";
     private static final String VERSION = "1.0.0";
@@ -32,11 +33,13 @@ public class PostfixAgent extends Agent {
 
     @Override
     public void pollCycle() {
-        Pattern p = Pattern.compile(POSTQUEUE_REGEX);
+        Pattern patternBytes = Pattern.compile(POSTQUEUE_REGEX_BYTES);
+        Pattern patternRequests = Pattern.compile(POSTQUEUE_REGEX_REQUESTS);
         String queue = getPostfixQueue();
-        Matcher m = p.matcher(queue);
-        Long kbytes = m.find() ? Long.valueOf(m.group()) : 0;
-        Long emails = m.find() ? Long.valueOf(m.group()) : 0;
+        Matcher matcherBytes = patternBytes.matcher(queue);
+        Matcher matcherRequests = patternRequests.matcher(queue);
+        Long kbytes = matcherBytes.find() ? Long.valueOf(matcherBytes.group(1)) : 0;
+        Long emails = matcherRequests.find() ? Long.valueOf(matcherRequests.group(1)) : 0;
 
         logger.debug(QUEUE_SIZE_MSG, kbytes);
         reportMetric("Queue size", "Kbytes", kbytes);
