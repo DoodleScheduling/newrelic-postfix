@@ -1,7 +1,10 @@
 {
   "agents": [
     {
-      "name": "Postfix-queue-monitor"
+      "name": "Postfix-queue-monitor",
+      "command" : "postqueue -p",
+      "bytesregex" : "(\\d+) Kbytes",
+      "emailsregex" : "(\\d+) Requests"
     }
   ]
 }

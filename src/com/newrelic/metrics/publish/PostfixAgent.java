@@ -5,6 +5,7 @@ import com.newrelic.metrics.publish.util.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,19 +14,22 @@ public class PostfixAgent extends Agent {
     private static final Logger logger = Logger.getLogger(PostfixAgent.class);
     private static final String QUEUE_SIZE_MSG = "Queue size in kbytes: ";
     private static final String PENDING_EMAILS_MSG = "Number of pending emails: ";
-    private static final String POSTQUEUE_REGEX_BYTES = "(\\d+) Kbytes";
-    private static final String POSTQUEUE_REGEX_REQUESTS = "(\\d+) Requests";
 
     private static final String GUID = "com.doodle.postfix";
     private static final String VERSION = "1.0.0";
-    private final String name;
-    private final static Pattern patternBytes = Pattern.compile(POSTQUEUE_REGEX_BYTES);
-    private final static Pattern patternRequests = Pattern.compile(POSTQUEUE_REGEX_REQUESTS);
 
-    public PostfixAgent(String name) throws ConfigurationException {
+    // Agent configuration, retrieved from plugin.json
+    private final String name;
+    private final List<String> command;
+    private final Pattern patternBytes;
+    private final Pattern patternRequests;
+
+    public PostfixAgent(String name, List<String> command, String bytesregex, String emailsregex ) throws ConfigurationException {
         super(GUID, VERSION);
         this.name = name;
-
+        this.command = command;
+        this.patternBytes = Pattern.compile(bytesregex);
+        this.patternRequests = Pattern.compile(emailsregex);
     }
 
     @Override
@@ -52,7 +56,7 @@ public class PostfixAgent extends Agent {
     private String getPostfixQueue() {
         String lastLine = "";
         try {
-            ProcessBuilder pb = new ProcessBuilder("postqueue", "-p");
+            ProcessBuilder pb = new ProcessBuilder(command);
             Process process = pb.start();
             String line;
 
@@ -73,7 +77,7 @@ public class PostfixAgent extends Agent {
             // Wait for the command to finish
             int returnCode = process.waitFor();
             if (returnCode != 0) {
-                logger.error("Command returned code: " + returnCode);
+                logger.error("Command '" + command + "' returned code: " + returnCode);
                 if (output.length() > 0) {
                     logger.error("Standard error:");
                     logger.error(output);
@@ -81,7 +85,7 @@ public class PostfixAgent extends Agent {
                 throw new RuntimeException();
             }
         } catch (Exception e) {
-            logger.error("Failed to execute 'postqueue -p'");
+            logger.error("Failed to execute " + command);
         }
         return lastLine;
     }
