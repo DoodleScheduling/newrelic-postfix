@@ -1,0 +1,10 @@
+[Unit]
+Description=Postfix New Relic Monitor
+
+[Service]
+SyslogIdentifier=newrelic-postfix
+ExecStart=/usr/bin/java -jar /opt/postfixmonitor/plugin.jar
+WorkingDirectory=/opt/postfixmonitor
+
+[Install]
+WantedBy=multi-user.target
